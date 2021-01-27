@@ -9,32 +9,25 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
 @Data
-@AllArgsConstructor
+@Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = "partnerList")
 @EntityListeners(AuditingEntityListener.class)
-@ToString(exclude = {"orderDetailList", "partner"})
 @Builder // lombok 추가기능
 @Accessors(chain = true) // lombok 추가기능
-public class Item {
+public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // mySql
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
-    private String name;
+    private String type;
     private String title;
-    private String content;
-    private BigDecimal price;
-    private String brandName;
-    private LocalDateTime registeredAt;
-    private LocalDateTime unregisteredAt;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -48,14 +41,7 @@ public class Item {
     @LastModifiedBy // @EntityListeners(AuditingEntityListener.class) 가 LoginUserAuditorAware에 설정된 값으로 작동시킨다.
     private String updatedBy;
 
-    @ManyToOne
-    private Partner partner;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    private List<Partner> partnerList;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
-    private List<OrderDetail> orderDetailList;
-
-    // N : 1
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
-//    private List<OrderDetail> orderDetailList;
-
-} // Item end
+}

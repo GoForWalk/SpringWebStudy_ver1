@@ -13,28 +13,28 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
+@Entity
 @EntityListeners(AuditingEntityListener.class)
-@ToString(exclude = {"orderDetailList", "partner"})
+@ToString(exclude = {"user", "orderDetailList"})
 @Builder // lombok 추가기능
 @Accessors(chain = true) // lombok 추가기능
-public class Item {
+public class OrderGroup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // mySql
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String status;
-    private String name;
-    private String title;
-    private String content;
-    private BigDecimal price;
-    private String brandName;
-    private LocalDateTime registeredAt;
-    private LocalDateTime unregisteredAt;
+    private String  orderType; // 주문의 형태 - 일괄 / 개별
+    private String revAddress;
+    private String revName;
+    private String paymentType; // 카드 / 현금
+    private BigDecimal totalPrice;
+    private Integer totalQuantity;
+    private LocalDateTime orderAt;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -49,13 +49,9 @@ public class Item {
     private String updatedBy;
 
     @ManyToOne
-    private Partner partner;
+    private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderGroup")
     private List<OrderDetail> orderDetailList;
 
-    // N : 1
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
-//    private List<OrderDetail> orderDetailList;
-
-} // Item end
+}
