@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     User findFirstByPhoneNumberOrderByIdDesc(String phoneNumber);
 
+//    User findById(Long id);
+
 }

@@ -1,6 +1,7 @@
 package com.example.study.controller;
 
 import com.example.study.model.SearchParam;
+import com.example.study.model.network.Header;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,9 +34,18 @@ public class GetContoller {
         // {"account" : "" , "email" : "" , "page" : 0}
         // spring boot의 특징
         // http : json 을 표준으로 사용해서, 기본으로 json 형태로 전환한다.
+        // get 을 통했을때, object 를 return 하면, 해당 object를 jackson을 통해서 json 형태로 변환하여 return
 
         // json parsing
         return searchParam;
+    }
+
+    @GetMapping("/header")
+    public Header getHeader(){
+
+
+        // {"resultCode" : "OK" , "description" : "OK"}
+        return Header.builder().resultCode("OK").description("OK").build();
     }
 
 }
