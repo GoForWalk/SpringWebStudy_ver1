@@ -1,5 +1,6 @@
 package com.example.study.model.entity;
 
+import com.example.study.model.enumclass.CategoryType;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
@@ -26,7 +27,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
+    // enum 사용
+    @Enumerated(EnumType.STRING)
+    private CategoryType type; // NOTEBOOK, DESKTOP, PHONE, TABLET, EARPHONE, MOUSE, KEYBOARD
+
     private String title;
 
     @CreatedDate

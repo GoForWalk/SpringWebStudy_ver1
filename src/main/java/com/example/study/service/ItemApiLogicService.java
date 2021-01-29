@@ -1,26 +1,24 @@
 package com.example.study.service;
 
-import com.example.study.controller.ifs.CrudInterface;
 import com.example.study.model.entity.Item;
+import com.example.study.model.enumclass.ItemStatus;
 import com.example.study.model.network.Header;
 import com.example.study.model.network.request.ItemApiRequest;
 import com.example.study.model.network.response.ItemApiResponse;
-import com.example.study.repository.ItemRepository;
 import com.example.study.repository.PartnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
-public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemApiResponse> {
+public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResponse, Item> {
 
     @Autowired
     private PartnerRepository partnerRepository;
 
-    @Autowired
-    ItemRepository itemRepository;
+//    @Autowired
+//    private ItemRepository itemRepository;
 
     @Override
     public Header<ItemApiResponse> create(Header<ItemApiRequest> request) {
@@ -30,7 +28,7 @@ public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemAp
 
         // code refactoring
         Item item = Item.builder()
-                .status("REGISTERED")
+                .status(ItemStatus.REGISTERED)
                 .name(itemApiRequest.getName())
                 .title(itemApiRequest.getTitle())
                 .content(itemApiRequest.getContent())
@@ -41,7 +39,7 @@ public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemAp
                 .build();
 
         // 2. itemRepository 사용해서 새로 입력하기
-        Item newItem = itemRepository.save(item);
+        Item newItem = baseRepository.save(item);
 
         // 3. api response 보내기
         return response(newItem);
@@ -51,7 +49,7 @@ public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemAp
     public Header<ItemApiResponse> read(Long id) {
 
         // 1. itemRepository, findbyid
-       return itemRepository.findById(id).map(item->response(item)).orElseGet(()->Header.ERROR("NO DATA"));
+       return baseRepository.findById(id).map(item->response(item)).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     @Override
@@ -59,11 +57,12 @@ public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemAp
 
         ItemApiRequest itemApiRequest = request.getData();
 
-        return itemRepository.findById(itemApiRequest.getId()).map(item -> {
+        return baseRepository.findById(itemApiRequest.getId()).map(item -> {
 
             item.setStatus(itemApiRequest.getStatus())
                     .setName(itemApiRequest.getName())
                     .setTitle(itemApiRequest.getTitle())
+                    .setStatus(itemApiRequest.getStatus())
                     .setContent(itemApiRequest.getContent())
                     .setPrice(itemApiRequest.getPrice())
                     .setBrandName(itemApiRequest.getBrandName())
@@ -72,18 +71,20 @@ public class ItemApiLogicService implements CrudInterface<ItemApiRequest, ItemAp
                     ;
             return item;
 
-        }).map(item -> itemRepository.save(item))
+        }).map(item -> baseRepository.save(item))
                 .map(newItem -> response(newItem))
                 .orElseGet(() -> Header.ERROR("NO DATA"));
     }
 
     @Override
     public Header delete(Long id) {
-        return itemRepository.findById(id).map(item -> {itemRepository.delete(item); return Header.Ok();}).orElseGet(()->Header.ERROR("NO DATA"));
+        return baseRepository.findById(id).map(item -> {baseRepository.delete(item); return Header.Ok();}).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     private Header<ItemApiResponse> response(Item item){
         // item -> itemApiResponse
+
+        String statusTitle  = item.getStatus().getTitle(); // enum 의 설정에 있는 id
 
         ItemApiResponse userApiResponse = ItemApiResponse.builder()
                 .id(item.getId())

@@ -1,5 +1,6 @@
 package com.example.study.model.entity;
 
+import com.example.study.model.enumclass.UserStatus;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
@@ -29,7 +30,10 @@ public class User {
     private String account;
     private String email;
     private String password;
-    private String status;
+
+    @Enumerated(EnumType.STRING) // JPA Enum 적용 -> Service 단에서 활용 가능.
+    private UserStatus status; // REGISTERED / UNREGISTERED / WAITING -> Enum 의 형태로 관리
+
     private String phoneNumber;
     private LocalDateTime registeredAt;
     private LocalDateTime unregisteredAt;

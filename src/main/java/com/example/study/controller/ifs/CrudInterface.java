@@ -2,6 +2,7 @@ package com.example.study.controller.ifs;
 
 import com.example.study.model.network.Header;
 import com.example.study.model.network.request.UserApiRequest;
+import com.example.study.service.BaseService;
 
 public interface CrudInterface<Req, Res> {
 

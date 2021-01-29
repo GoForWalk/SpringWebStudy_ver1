@@ -1,5 +1,6 @@
 package com.example.study.model.entity;
 
+import com.example.study.model.enumclass.OrderDetailStatus;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
@@ -17,17 +18,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@ToString(exclude = {"item", "orderGroup"})
+@ToString(exclude = {"item", "orderGroup"}) // 연관관계 설정에 따른 변수는 서로 참조를 풀기 위해서 exclude 사용)
 @Builder // lombok 추가기능
 @Accessors(chain = true) // lombok 추가기능
-//@ToString(exclude = {"user","item"}) // 연관관계 설정에 따른 변수는 서로 참조를 풀기 위해서 exclude 사용)
 public class OrderDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderDetailStatus status;
 
     private LocalDateTime arrivalDate;
     private Integer quantity;
