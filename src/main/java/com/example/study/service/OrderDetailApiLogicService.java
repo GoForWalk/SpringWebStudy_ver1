@@ -79,6 +79,7 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
                 .orderGroupID(orderDetail.getOrderGroup().getId())
                 .build();
 
+
         return Header.Ok(body);
     }
 
