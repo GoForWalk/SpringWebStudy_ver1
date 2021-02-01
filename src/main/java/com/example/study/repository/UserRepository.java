@@ -4,8 +4,6 @@ import com.example.study.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 // JpaRepository를 상속
 // <object type = entity class, primary key type>
 @Repository

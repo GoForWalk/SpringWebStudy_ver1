@@ -22,7 +22,7 @@ public class OrderGroupApiResponse {
     private OrderGroupOrderType orderType;
     private String revAddress;
     private String revName;
-    private OrderGroupPaymentType paymentType;
+    private String paymentType;
     private BigDecimal totalPrice;
     private int totalQuantity;
     private LocalDateTime orderAt;

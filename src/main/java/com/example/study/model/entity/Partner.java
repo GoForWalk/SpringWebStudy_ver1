@@ -29,8 +29,8 @@ public class Partner {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private PartnerStatus status;
+//    @Enumerated(EnumType.STRING)
+    private String status;
 
     private String address;
     private String callCenter;

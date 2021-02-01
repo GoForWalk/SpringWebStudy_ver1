@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class OrderDetailResponse {
 
     private Long id;
-    private OrderDetailStatus status;
+    private String  status;
     private LocalDateTime arrivalDate;
     private Integer quantity;
     private BigDecimal totalPrice;

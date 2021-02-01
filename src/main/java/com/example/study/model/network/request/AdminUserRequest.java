@@ -26,6 +26,5 @@ public class AdminUserRequest {
     private int loginFailCount;
     private LocalDateTime registeredAt;
     private LocalDateTime unregisteredAt;
-
-
+ 
 }

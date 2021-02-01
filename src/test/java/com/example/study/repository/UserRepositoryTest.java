@@ -2,6 +2,8 @@ package com.example.study.repository;
 
 import com.example.study.StudyApplicationTests;
 import com.example.study.model.entity.User;
+import com.example.study.model.enumclass.UserStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 public class UserRepositoryTest extends StudyApplicationTests {
 
     // DI 의존적 주입 : 사용자가 직접 객체를 만들지 않고, 스프링에서 객체를 관리
@@ -33,7 +36,7 @@ public class UserRepositoryTest extends StudyApplicationTests {
 //        User newUser = userRepository.save(user);
 //        System.out.println("newUser : " + newUser);
 
-        User user = new User();
+//        User user = new User();
 
         String account = "Test03";
         String password = "pass03";
@@ -48,24 +51,26 @@ public class UserRepositoryTest extends StudyApplicationTests {
         User u = User.builder() // builder pattern start
                 .account(account) // 생성자에 넣을 parameter
                 .password(password)
-                .status(status)
+                .status(UserStatus.valueOf(status))
                 .email(email)
+                .phoneNumber(phoneNumber)
                 .build(); // builder pattern end
 
         // Chaining 사용
-        user.setAccount(account).setPassword(password).setPhoneNumber(phoneNumber);
+//        user.setAccount(account).setPassword(password).setPhoneNumber(phoneNumber);
+//
+//        // chaining 미사용
+//        user.setAccount(account);
+//        user.setPassword(password);
+//        user.setPhoneNumber(phoneNumber);
+//        user.setStatus(UserStatus.valueOf(status));
+//        user.setEmail(email);
+////        user.setCreatedAt(createdAt);
+////        user.setCreatedBy(createdBy);
+//        user.setRegisteredAt(registeredAt);
 
-        // chaining 미사용
-        user.setAccount(account);
-        user.setPassword(password);
-        user.setPhoneNumber(phoneNumber);
-        user.setStatus(status);
-        user.setEmail(email);
-//        user.setCreatedAt(createdAt);
-//        user.setCreatedBy(createdBy);
-        user.setRegisteredAt(registeredAt);
-
-        User newUser = userRepository.save(user);
+        log.info("u : {}", u);
+        User newUser = userRepository.save(u);
 
         Assertions.assertNotNull(newUser);
         Assertions.assertEquals(newUser.getAccount(), account);

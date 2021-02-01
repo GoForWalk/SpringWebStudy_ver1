@@ -28,8 +28,8 @@ public class Category {
     private Long id;
 
     // enum 사용
-    @Enumerated(EnumType.STRING)
-    private CategoryType type; // NOTEBOOK, DESKTOP, PHONE, TABLET, EARPHONE, MOUSE, KEYBOARD
+//    @Enumerated(EnumType.STRING)
+    private String type; // NOTEBOOK, DESKTOP, PHONE, TABLET, EARPHONE, MOUSE, KEYBOARD
 
     private String title;
 

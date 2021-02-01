@@ -40,8 +40,8 @@ public class OrderGroup {
     private String revName;
 
     // enum 형태로
-    @Enumerated(EnumType.STRING)
-    private OrderGroupPaymentType paymentType; // 카드 / 현금
+//    @Enumerated(EnumType.STRING)
+    private String paymentType; // 카드 / 현금
 
     private BigDecimal totalPrice;
     private Integer totalQuantity;

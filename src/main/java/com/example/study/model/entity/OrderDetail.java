@@ -27,8 +27,8 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private OrderDetailStatus status;
+//    @Enumerated(EnumType.STRING)
+    private String status;
 
     private LocalDateTime arrivalDate;
     private Integer quantity;

@@ -22,7 +22,7 @@ public class PartnerApiLogicService extends BaseService<PartnerApiRequest, Partn
 
         Partner partner = Partner.builder()
                 .name(body.getName())
-                .status(PartnerStatus.REGISTERED)
+                .status("REGISTERED")
                 .address(body.getAddress())
                 .callCenter(body.getCallCenter())
                 .partnerNumber(body.getPartnerNumber())
@@ -39,7 +39,7 @@ public class PartnerApiLogicService extends BaseService<PartnerApiRequest, Partn
     @Override
     public Header<PartnerApiResponse> read(Long id) {
 
-        return baseRepository.findById(id).map(partner -> response(partner)).orElseGet(()->Header.ERROR("NO DATA"));
+        return baseRepository.findById(id).map(this::response).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     @Override

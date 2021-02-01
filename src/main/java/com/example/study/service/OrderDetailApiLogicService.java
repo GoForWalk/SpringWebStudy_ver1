@@ -25,7 +25,7 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
         OrderDetailRequest body = request.getData();
 
         OrderDetail orderDetail = OrderDetail.builder()
-                .status(OrderDetailStatus.REGISTERED)
+                .status("REGISTERED")
                 .arrivalDate(body.getArrivalDate())
                 .quantity(body.getQuantity())
                 .totalPrice(body.getTotalPrice())
