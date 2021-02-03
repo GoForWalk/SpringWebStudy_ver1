@@ -1,14 +1,29 @@
 package com.example.study.service;
 
+import com.example.study.model.entity.Item;
+import com.example.study.model.entity.OrderGroup;
 import com.example.study.model.entity.User;
 import com.example.study.model.enumclass.UserStatus;
 import com.example.study.model.network.Header;
+import com.example.study.model.network.Pagination;
 import com.example.study.model.network.request.UserApiRequest;
+import com.example.study.model.network.response.ItemApiResponse;
+import com.example.study.model.network.response.OrderGroupApiResponse;
 import com.example.study.model.network.response.UserApiResponse;
+import com.example.study.model.network.response.UserOrderInfoApiResponse;
+import com.example.study.repository.ItemRepository;
+import com.example.study.repository.OrderGroupRepository;
+import com.example.study.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResponse, User> {
@@ -19,6 +34,12 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
     // 1. request data
     // 2. User 생성
     // 3. 생성된 데이터 -> UserApiResponse return
+
+    @Autowired
+    private OrderGroupApiLogicService orderGroupApiLogicService;
+
+    @Autowired
+    private ItemApiLogicService itemApiLogicService;
 
     @Override
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
@@ -40,7 +61,7 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
 
         // 3. 생성된 데이터 -> userApiResponse return
         // response method 에서 처리하고 response(newUser)를 리턴
-       return response(newUser);
+       return Header.Ok(response(newUser));
     }
 
     @Override
@@ -56,7 +77,7 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
 //                       ()->Header.ERROR("데이터 없음") // null 일 경우, Header 에 에러문으로 "데이터 없음" 을 입력하여 return
 //               );
         // 위 주석을 한줄로 표현
-        return baseRepository.findById(id).map(user -> response(user)).orElseGet(()->Header.ERROR("데이터 없음"));
+        return baseRepository.findById(id).map(user -> Header.Ok(response(user))).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     @Override
@@ -83,7 +104,8 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
             return user;
         })
                 .map(user -> baseRepository.save(user))     // update -> newUser
-                .map(updateUser -> response(updateUser))    // 4. userApiResponse
+                .map(updateUser -> response(updateUser)) // 4. userApiResponse
+                .map(Header::Ok) // Header 로 감싸기
                 .orElseGet(()->Header.ERROR("데이터 없음"));
     }
 
@@ -94,14 +116,13 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
         Optional<User> optional = baseRepository.findById(id);
 
         // 2. repository -> delete
-
         return optional.map(user -> {
             baseRepository.delete(user);
             return Header.Ok();
         }).orElseGet(()->Header.ERROR("데이터 없음"));
     }
 
-    private Header<UserApiResponse> response(User user){
+    public UserApiResponse response(User user){
         // user -> userApiResponse
 
         UserApiResponse userApiResponse = UserApiResponse.builder()
@@ -115,6 +136,64 @@ public class UserApiLogicService extends BaseService<UserApiRequest, UserApiResp
                 .build();
 
         // Header + data
-        return Header.Ok(userApiResponse);
+        return userApiResponse;
     }
+
+    // pagination
+    public Header<List<UserApiResponse>> search(Pageable pageable){
+
+        Page<User> users = baseRepository.findAll(pageable);
+
+        // List<UserApiResponse>
+        List<UserApiResponse> userApiResponseList = users.stream()
+                .map(user -> response(user))
+                .collect(Collectors.toList());
+
+        // Header 에 페이징 정보 추가
+        Pagination pagination = Pagination.builder()
+                .totalPage(users.getTotalPages())
+                .totalElements(users.getTotalElements())
+                .currentPage(users.getNumber())
+                .currentElements(users.getNumberOfElements())
+                .build();
+
+        // Header<List<UserApiResponse>>
+        return Header.Ok(userApiResponseList, pagination);
+    }
+
+    // UserOrderInfoApiResponse
+    public Header<UserOrderInfoApiResponse> orderInfo(Long id){
+
+        // user
+        User user = baseRepository.getOne(id);
+
+        UserApiResponse userApiResponse = response(user);
+
+        // orderGroup
+        List<OrderGroup> orderGroupList = user.getOrderGroupList();
+
+        List<OrderGroupApiResponse> orderGroupApiResponseList = orderGroupList.stream()
+                .map(orderGroup -> {
+                   OrderGroupApiResponse orderGroupApiResponse =  orderGroupApiLogicService.response(orderGroup);
+
+                   // item api response
+                    List<ItemApiResponse> itemApiResponseList = orderGroup.getOrderDetailList().stream()
+                            .map(detail -> detail.getItem())
+                            .map(item -> itemApiLogicService.response(item))
+                            .collect(Collectors.toList());
+
+                    orderGroupApiResponse.setItemApiResponseList(itemApiResponseList);
+                    return orderGroupApiResponse;
+                })
+                .collect(Collectors.toList());
+
+        userApiResponse.setOrderGroupApiResponseList(orderGroupApiResponseList);
+
+        UserOrderInfoApiResponse userOrderInfoApiResponse = UserOrderInfoApiResponse.builder()
+                .userApiResponse(userApiResponse)
+                .build();
+
+        return Header.Ok(userOrderInfoApiResponse);
+    }
+
 }

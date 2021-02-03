@@ -8,7 +8,12 @@ import com.example.study.model.network.response.OrderDetailResponse;
 import com.example.study.repository.ItemRepository;
 import com.example.study.repository.OrderGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, OrderDetailResponse, OrderDetail>{
@@ -33,12 +38,12 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
                 .orderGroup(orderGroupRepository.getOne(body.getOrderGroupID()))
                 .build();
 
-        return response(baseRepository.save(orderDetail));
+        return Header.Ok(response(baseRepository.save(orderDetail)));
     }
 
     @Override
     public Header<OrderDetailResponse> read(Long id) {
-        return baseRepository.findById(id).map(orderDetail -> response(orderDetail)).orElseGet(()->Header.ERROR("NO DATA"));
+        return baseRepository.findById(id).map(orderDetail -> Header.Ok(response(orderDetail))).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     @Override
@@ -58,7 +63,7 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
             return orderDetail;
 
         }).map(updateOrderDetail -> baseRepository.save(updateOrderDetail))
-                .map(newOrderDetail -> response(newOrderDetail))
+                .map(newOrderDetail -> Header.Ok(response(newOrderDetail)))
                 .orElseGet(() -> Header.ERROR("NO DATA"));
     }
 
@@ -67,7 +72,19 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
         return baseRepository.findById(id).map(orderDetail -> {baseRepository.delete(orderDetail); return Header.Ok();}).orElseGet(() -> Header.ERROR("NO DATA"));
     }
 
-    private Header<OrderDetailResponse> response (OrderDetail orderDetail){
+    @Override
+    public Header<List<OrderDetailResponse>> search(Pageable pageable) {
+
+        Page<OrderDetail> orderDetails = baseRepository.findAll(pageable);
+
+        List<OrderDetailResponse> orderDetailResponseList = orderDetails.stream()
+                .map(orderDetail -> response(orderDetail))
+                .collect(Collectors.toList());
+
+        return null;
+    }
+
+    public OrderDetailResponse response (OrderDetail orderDetail){
 
         OrderDetailResponse body = OrderDetailResponse.builder()
                 .id(orderDetail.getId())
@@ -79,8 +96,7 @@ public class OrderDetailApiLogicService extends BaseService<OrderDetailRequest, 
                 .orderGroupID(orderDetail.getOrderGroup().getId())
                 .build();
 
-
-        return Header.Ok(body);
+        return body;
     }
 
 }

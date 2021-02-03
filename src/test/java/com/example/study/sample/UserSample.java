@@ -43,7 +43,6 @@ public class UserSample extends StudyApplicationTests {
             userRepository.save(user);
         }
 
-
     }
 
 

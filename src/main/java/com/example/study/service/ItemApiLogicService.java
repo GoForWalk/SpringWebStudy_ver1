@@ -1,15 +1,22 @@
 package com.example.study.service;
 
 import com.example.study.model.entity.Item;
+import com.example.study.model.entity.Partner;
 import com.example.study.model.enumclass.ItemStatus;
 import com.example.study.model.network.Header;
+import com.example.study.model.network.Pagination;
 import com.example.study.model.network.request.ItemApiRequest;
 import com.example.study.model.network.response.ItemApiResponse;
 import com.example.study.repository.PartnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResponse, Item> {
@@ -17,16 +24,15 @@ public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResp
     @Autowired
     private PartnerRepository partnerRepository;
 
-//    @Autowired
-//    private ItemRepository itemRepository;
-
     @Override
     public Header<ItemApiResponse> create(Header<ItemApiRequest> request) {
 
+        // request 가 Null 아 아닐 때,
+
         // 1. item 불러오기 / 객체 초기화/ 담기
         ItemApiRequest itemApiRequest = request.getData(); // TODO Optional로 변환
+//        Optional<ItemApiRequest> itemApiRequest = Optional.of(request.getData()); // TODO Optional로 변환
 
-        // code refactoring
         Item item = Item.builder()
                 .status(ItemStatus.REGISTERED)
                 .name(itemApiRequest.getName())
@@ -38,18 +44,24 @@ public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResp
                 .partner(partnerRepository.getOne(itemApiRequest.getPartnerId()))
                 .build();
 
-        // 2. itemRepository 사용해서 새로 입력하기
         Item newItem = baseRepository.save(item);
 
-        // 3. api response 보내기
-        return response(newItem);
+       return Header.Ok(response(newItem));
+//        // code refactoring
+//
+//
+//        // 2. itemRepository 사용해서 새로 입력하기
+//        Item newItem = baseRepository.save(item);
+//
+//        // 3. api response 보내기
+//        return Header.Ok(response(newItem));
     }
 
     @Override
     public Header<ItemApiResponse> read(Long id) {
 
         // 1. itemRepository, findbyid
-       return baseRepository.findById(id).map(item->response(item)).orElseGet(()->Header.ERROR("NO DATA"));
+       return baseRepository.findById(id).map(item->Header.Ok(response(item))).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
     @Override
@@ -72,7 +84,7 @@ public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResp
             return item;
 
         }).map(item -> baseRepository.save(item))
-                .map(newItem -> response(newItem))
+                .map(newItem -> Header.Ok(response(newItem)))
                 .orElseGet(() -> Header.ERROR("NO DATA"));
     }
 
@@ -81,10 +93,29 @@ public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResp
         return baseRepository.findById(id).map(item -> {baseRepository.delete(item); return Header.Ok();}).orElseGet(()->Header.ERROR("NO DATA"));
     }
 
-    private Header<ItemApiResponse> response(Item item){
+    @Override
+    public Header<List<ItemApiResponse>> search(Pageable pageable) {
+
+        Page<Item> items = baseRepository.findAll(pageable);
+
+        List<ItemApiResponse> itemApiResponseList = items.stream()
+                .map(item -> response(item))
+                .collect(Collectors.toList());
+
+        Pagination pagination = Pagination.builder()
+                .currentElements(items.getNumberOfElements())
+                .currentPage(items.getNumber())
+                .totalPage(items.getTotalPages())
+                .totalElements(items.getTotalElements())
+                .build();
+
+        return Header.Ok(itemApiResponseList, pagination);
+    }
+
+    public ItemApiResponse response(Item item){
         // item -> itemApiResponse
 
-        String statusTitle  = item.getStatus().getTitle(); // enum 의 설정에 있는 id
+//        String statusTitle  = item.getStatus().getTitle(); // enum 의 설정에 있는 id
 
         ItemApiResponse userApiResponse = ItemApiResponse.builder()
                 .id(item.getId())
@@ -100,6 +131,6 @@ public class ItemApiLogicService extends BaseService<ItemApiRequest, ItemApiResp
                 .build();
 
         // Header + data
-        return Header.Ok(userApiResponse);
+        return userApiResponse;
     }
 }

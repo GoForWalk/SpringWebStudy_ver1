@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +29,9 @@ public class OrderGroupApiResponse {
     private LocalDateTime orderAt;
     private LocalDateTime arrivalDate;
 
-
     private Long userId;
+
+    // UserOrderInfoApiResponse 에서 사용할 Group 별 구매내역
+    private List<ItemApiResponse> itemApiResponseList;
+
 }

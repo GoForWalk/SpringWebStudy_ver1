@@ -32,6 +32,8 @@ public class Header<T> {
 
     private T data;
 
+    private Pagination pagination;
+
 
     // OK
     public static <T> Header<T> Ok(){
@@ -42,13 +44,24 @@ public class Header<T> {
                 .build();
     }
 
-    // DATA OK
+    // DATA OK(data)
     public static <T> Header<T> Ok(T data){
         return (Header<T>) Header.builder()
                 .transactionTime(LocalDateTime.now().toString())
                 .resultCode("OK")
                 .description("OK")
                 .data(data)
+                .build();
+    }
+
+    // DATA OK(data, pagination) - method overloading
+    public static <T> Header<T> Ok(T data, Pagination pagination){
+        return (Header<T>) Header.builder()
+                .transactionTime(LocalDateTime.now().toString())
+                .resultCode("OK")
+                .description("OK")
+                .data(data)
+                .pagination(pagination)
                 .build();
     }
 
